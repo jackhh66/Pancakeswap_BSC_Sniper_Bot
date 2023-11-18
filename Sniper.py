@@ -1,10 +1,25 @@
-from style import style
-from halo import Halo
 from time import sleep
-import json
-import argparse
-from txns import TXN
+import json, argparse
+from halo import Halo
+from pyTigsSwapOracle.TigsSwapOracleV1 import SwapOracle
 import requests
+
+
+class CustomPrinter:
+    COLORS = {
+        'reset': '\033[0m',
+        'black': '\033[30m',
+        'red': '\033[31m',
+        'green': '\033[32m',
+        'yellow': '\033[33m',
+        'blue': '\033[34m',
+        'purple': '\033[35m',
+        'cyan': '\033[36m',
+        'white': '\033[37m'
+    }
+
+printer = CustomPrinter()
+
 
 ascii = """
   ______               ___            
@@ -58,90 +73,130 @@ parser.add_argument('-sec', '--SwapEnabledCheck',  action="store_true",
 args = parser.parse_args()
 
 
+
+
 class SniperBot():
-
-    def __init__(self):
-        self.parseArgs()
-        self.settings = self.loadSettings()
-        self.SayWelcome()
-
-    def loadSettings(self):
-        with open("Settings.json", "r") as settings:
-            settings = json.load(settings)
-        return settings
-
-    def SayWelcome(self):
-        self.TXN = TXN(self.token, self.amountForSnipe)
-        print(style().YELLOW + ascii + style().RESET)
-        print(style().GREEN + """Attention, You pay a 0.7% Tax on your swap amount if you dont hold 1k TIGS!""" + style().RESET)
-        print(style().GREEN +
-              "Start Sniper Tool with following arguments:" + style().RESET)
-        print(style().BLUE + "---------------------------------" + style().RESET)
-        print(style().YELLOW + "Amount for Buy:", style().GREEN +
-              str(self.amount) + " BNB" + style().RESET)
-        print(style().YELLOW + "Token to Interact :",
-              style().GREEN + str(self.token) + style().RESET)
-        print(style().YELLOW + "Token Name:",
-              style().GREEN + str(self.TXN.get_token_Name()) + style().RESET)
-        print(style().YELLOW + "Token Symbol:",
-              style().GREEN + str(self.TXN.get_token_Symbol()) + style().RESET)
-        print(style().YELLOW + "Transaction to send:",
-              style().GREEN + str(self.tx) + style().RESET)
-        print(style().YELLOW + "Amount per transaction :", style().GREEN +
-              str("{0:.8f}".format(self.amountForSnipe)) + style().RESET)
-        print(style().YELLOW + "Await Blocks before buy :",
-              style().GREEN + str(self.wb) + style().RESET)
-
-        if self.tsl != 0:
-            print(style().YELLOW + "Trailing Stop loss Percent :",
-                  style().GREEN + str(self.tsl) + style().RESET)
-        if self.tp != 0:
-            print(style().YELLOW + "Take Profit Percent :",
-                  style().GREEN + str(self.tp) + style().RESET)
-        if self.sl != 0:
-            print(style().YELLOW + "Stop loss Percent :",
-                  style().GREEN + str(self.sl) + style().RESET)
-        print(style().BLUE + "---------------------------------" + style().RESET)
-
-    def parseArgs(self):
-        self.token = args.token
-        if self.token == None:
-            print(
-                style.RED+"Please Check your Token argument e.g. -t 0x34faa80fec0233e045ed4737cc152a71e490e2e3")
-            print("exit!")
-            raise SystemExit
-
-        self.amount = args.amount
-        if args.nobuy != True:
-            if not args.sellonly:
-                if self.amount == 0:
-                    print(style.RED+"Please Check your Amount argument e.g. -a 0.01")
-                    print("exit!")
-                    raise SystemExit
-
-        self.tx = args.txamount
-        self.amountForSnipe = float(self.amount) / float(self.tx)
-        self.hp = args.honeypot
-        self.wb = args.awaitBlocks
-        self.tp = args.takeprofit
-        self.sl = args.stoploss
-        self.tsl = args.trailingstoploss
-        self.cl = args.checkliquidity
+    def __init__(   self, 
+                    token, 
+                    amount, 
+                    txamount, 
+                    sellpercent, 
+                    honeypot, 
+                    nobuy, 
+                    takeprofit, 
+                    stoploss, 
+                    trailingstoploss, 
+                    awaitBlocks, 
+                    checkMaxTax, 
+                    checkcontract, 
+                    sellonly, buyonly,
+                    checkliquidity,
+                    retry, 
+                    SwapEnabledCheck
+                ):
+        self.token = token
+        self.amount = amount
+        self.tx = txamount
+        self.sellpercent = sellpercent
+        self.hp = honeypot
+        self.nobuy = nobuy
+        self.tp = takeprofit
+        self.sl = stoploss
+        self.tsl = trailingstoploss
+        self.wb = awaitBlocks
+        self.checkMaxTax = checkMaxTax
+        self.checkcontract = checkcontract
+        self.sellonly = sellonly
+        self.buyonly = buyonly
+        self.cl = checkliquidity
+        self.retry = retry
+        self.SwapEnabledCheck = SwapEnabledCheck
         self.stoploss = 0
         self.takeProfitOutput = 0
+        if txamount != 0 or txamount != 1:
+            self.amountForSnipe = float(self.amount) / float(self.tx)
+        if self.sellpercent == 0 or self.sellpercent == None:
+            self.sellpercent = 100
+        self.COLORS = {
+            'reset': '\033[0m',
+            'black': '\033[30m',
+            'red': '\033[31m',
+            'green': '\033[32m',
+            'yellow': '\033[33m',
+            'blue': '\033[34m',
+            'purple': '\033[35m',
+            'cyan': '\033[36m',
+            'white': '\033[37m'
+        }
+
+        self.TXN = SwapOracle(token)
+        self.SayWelcome()
+
+    def print_custom(self, text:str="", color:str="", end:str = None):
+        color_code = self.COLORS.get(color.lower(), self.COLORS['reset'])
+        print(
+            f"{color_code}{text}{self.COLORS['reset']}",
+            end=end
+            )
+
+
+    def SayWelcome(self):
+        if self.token == None:
+            self.print_custom(
+                "Please Check your Token argument e.g. -t 0x34faa80fec0233e045ed4737cc152a71e490e2e3", color="red")
+            self.print_custom("exit!", color="red")
+            raise SystemExit
+
+        if self.nobuy != True:
+            if not self.sellonly:
+                if self.amount == 0:
+                    self.print_custom("Please Check your Amount argument e.g. -a 0.01", color="red")
+                    self.print_custom("exit!", color="red")
+                    raise SystemExit
+                
+        self.print_custom(ascii, color="yellow")
+        self.print_custom("Attention, You pay a 0.7% Tax on your swap amount if you dont hold 1k TIGS!", color="red")
+        sleep(2)
+        self.print_custom("Start Sniper Tool with following arguments:", color="yellow")
+        self.print_custom( "---------------------------------", color="blue")
+        self.print_custom("Amount for Buy: "+str(self.amount)+" BNB", color="yellow")
+        self.print_custom("Token to Interact: "+str(self.token) , color="yellow")
+        self.print_custom("Token Name: "+str(self.TXN.IERC20.get_token_Name()) , color="yellow")
+        self.print_custom("Token Symbol: "+ str(self.TXN.IERC20.get_token_Symbol()), color="yellow")
+        self.print_custom("Transaction to send: "+str(self.tx) , color="yellow")
+        self.print_custom("Amount per transaction: "+str(self.TXN.w3U.get_human_amount(self.amountForSnipe)) , color="yellow")
+        self.print_custom("Await Blocks before buy: "+ str(self.wb), color="yellow")
+
+        if self.tsl != 0:
+            self.print_custom("Trailing Stop loss Percent :"+ str(self.tsl), color="yellow")
+        if self.tp != 0:
+            self.print_custom("Take Profit Percent :" + str(self.tp), color="yellow")
+        if self.sl != 0:
+            self.print_custom("Stop loss Percent :"+str(self.sl), color="yellow")
+        self.print_custom("---------------------------------", color="blue")
+
+                
+
+    def getOutputTokenToBNB(self, percent: int = 100) -> int:
+        tokenBalance = self.TXN.IERC20.get_token_balance(self.TXN.SwapContract.user_address)
+        if tokenBalance > 0:
+            AmountForInput = int((tokenBalance / 100) * percent)
+            if percent == 100:
+                AmountForInput = tokenBalance
+        return self.TXN.SwapContract.getAmountsOutTokenToBNB(AmountForInput)[-1]
+            
 
     def calcProfit(self):
         if self.amountForSnipe == 0.0:
-            self.amountForSnipe = self.TXN.getOutputTokenToBNB(percent=args.sellpercent)[
-                0] / (10**18)
+            self.amountForSnipe = self.TXN.w3U.from_wei(self.getOutputTokenToBNB(percent=self.sellpercent))
+                
         a = ((self.amountForSnipe * self.tx) * self.tp) / 100
         b = a + (self.amountForSnipe * self.tx)
         return b
 
     def calcloss(self):
         if self.amountForSnipe == 0.0:
-            self.amountForSnipe = self.TXN.getOutputTokenToBNB(percent=args.sellpercent)[
-                0] / (10**18)
+            self.amountForSnipe = self.TXN.w3U.from_wei(self.getOutputTokenToBNB(percent=self.sellpercent))
         a = ((self.amountForSnipe * self.tx) * self.sl) / 100
         b = (self.amountForSnipe * self.tx) - a
         return b
@@ -152,47 +207,44 @@ class SniperBot():
         return b
 
     def awaitBuy(self):
-        spinner = Halo(text='await Buy', spinner='dots')
-        spinner.start()
         for i in range(self.tx):
-            spinner.start()
-            self.TXN = TXN(self.token, self.amountForSnipe)
-            tx = self.TXN.buy_token(args.retry)
-            spinner.stop()
-            print(tx[-1])
+            tx = self.TXN.SwapContract.SwapETHtoToken(self.amountForSnipe, self.retry)
+            if tx[0] == True:
+                self.print_custom("Buy Hash: " + tx[1] , color="green"), self.print_custom(tx[2] , color="yellow")
             if tx[0] != True:
                 raise SystemExit
 
     def awaitSell(self):
-        spinner = Halo(text='await Sell', spinner='dots')
-        spinner.start()
-        self.TXN = TXN(self.token, self.amountForSnipe)
-        tx = self.TXN.sell_tokens(args.sellpercent)
-        spinner.stop()
-        print(tx[1])
-        if tx[0] != True:
+        tokenBalance = self.TXN.w3U.from_wei(self.TXN.IERC20.get_token_balance(self.TXN.SwapContract.user_address), self.TXN.IERC20.get_token_decimals())
+        AmountForInput = (tokenBalance / 100) * self.sellpercent
+        tx = self.TXN.SwapContract.SwapTokentoETH(AmountForInput, self.retry)
+        if tx[0] == True:
+            self.print_custom("Sell TX Hash: " + tx[1] , color="green")
+            self.print_custom(tx[2] , color="yellow")
+        elif tx[0] != True:
             raise SystemExit
+
 
     def awaitApprove(self):
-        spinner = Halo(text='await Approve', spinner='dots')
-        spinner.start()
-        self.TXN = TXN(self.token, self.amountForSnipe)
-        tx = self.TXN.approve()
-        spinner.stop()
-        print(tx[1])
-        if tx[0] != True:
+        tx = self.TXN.IERC20.approve(
+            self.TXN.SwapContract.constants.TigsSwapOracle,
+            self.TXN.IERC20.get_token_balance(self.TXN.SwapContract.user_address)
+            )
+        if tx[0] == True:
+            self.print_custom("Approve TX Hash: "+ tx[1] , color="green")
+            self.print_custom(tx[2] , color="yellow")
+        else:
             raise SystemExit
 
+
     def awaitBlocks(self):
-        spinner = Halo(text='await Blocks', spinner='dots')
-        spinner.start()
-        waitForBlock = self.TXN.getBlockHigh() + self.wb
+        waitForBlock = self.TXN.w3U.block() + self.wb
         while True:
-            sleep(0.13)
-            if self.TXN.getBlockHigh() > waitForBlock:
-                spinner.stop()
+            sleep(0.3)
+            if self.TXN.w3U.block() > waitForBlock:
                 break
-        print(style().GREEN+"[DONE] Wait Blocks finish!")
+        self.print_custom("[DONE] Wait Blocks finish!", color="green")
+
 
     def CheckVerifyCode(self):
         while True:
@@ -203,26 +255,27 @@ class SniperBot():
                 jsonSource = json.loads(getsourcecode)
                 if not "MAX RATE LIMIT REACHED".lower() in str(jsonSource["result"]).lower():
                     if not "NOT VERIFIED".lower() in str(jsonSource["result"]).lower():
-                        print("[CheckContract] IS Verfied")
-                        for BlackWord in self.settings["cc_BlacklistWords"]:
+                        self.print_custom("[CheckContract] IS Verfied")
+                        for BlackWord in self.TXN.settings.settings["cc_BlacklistWords"]:
                             if BlackWord.lower() in getsourcecode:
-                                print(
-                                    style().RED+f"[CheckContract] BlackWord {BlackWord} FOUND, Exit!")
+                                self.print_custom(
+                                    f"[CheckContract] BlackWord {BlackWord} FOUND, Exit!", color="red")
                                 raise SystemExit
-                        print(style().GREEN +
-                              "[CheckContract] No known abnormalities found.")
+                        self.print_custom(
+                              "[CheckContract] No known abnormalities found.", color="green")
                         break
                     else:
-                        print(
-                            style().RED+"[CheckContract] Code Not Verfied, Can't check, Exit!")
+                        self.print_custom(
+                            "[CheckContract] Code Not Verfied, Can't check, Exit!", color="red")
                         raise SystemExit
                 else:
-                    print("Max Request Rate Reached, Sleep 5sec.")
+                    self.print_custom("Max Request Rate Reached, Sleep 5sec.", color="yellow")
                     sleep(5)
                     continue
             else:
-                print("BSCScan.org Request Faild, Exiting.")
+                self.print_custom("BSCScan.com Request Faild, Exiting.", color="red")
                 raise SystemExit
+
 
     def awaitLiquidity(self):
         spinner = Halo(text='await Liquidity', spinner='dots')
@@ -230,25 +283,28 @@ class SniperBot():
         while True:
             sleep(0.07)
             try:
-                self.TXN.fetchOutputBNBtoToken()[0]
+                self.TXN.SwapContract.getAmountsOutBNBToToken(
+                    self.TXN.w3U.to_wei(self.amountForSnipe, 18)
+                )
                 spinner.stop()
                 break
             except Exception as e:
+                print(e)
                 if "UPDATE" in str(e):
-                    print(e)
+                    self.print_custom(e)
                     raise SystemExit
                 continue
+        self.print_custom("[DONE] Liquidity is Added!", color="green")
 
-        print(style().GREEN+"[DONE] Liquidity is Added!" + style().RESET)
 
     def fetchLiquidity(self):
-        liq = self.TXN.getLiquidityUSD()[1]
-        print(style().GREEN+"[LIQUIDTY] Current Token Liquidity:",
-              round(liq, 3), "USD" + style().RESET)
-        if float(liq) < float(self.settings["MinLiquidityUSD"]):
-            print(style.RED+"[LIQUIDTY] <- TO SMALL, EXIT!")
+        liq = self.TXN.w3U.from_wei(self.TXN.SwapContract.getLiquidityUSD(), 18)
+        self.print_custom("[LIQUIDTY] Current Token Liquidity: "+str(round(liq))+" USD" , color="yellow" )
+        if float(liq) < float(self.TXN.settings.settings["MinLiquidityUSD"]):
+            self.print_custom("[LIQUIDTY] <- TO SMALL, EXIT!", color="red")
             raise SystemExit
         return True
+    
 
     def awaitEnabledBuy(self):
         spinner = Halo(text='await Dev Enables Swapping', spinner='dots')
@@ -256,15 +312,16 @@ class SniperBot():
         while True:
             sleep(0.07)
             try:
-                if self.TXN.checkifTokenBuyDisabled() == True:
+                if self.TXN.SwapContract.TestSwapETHtoToken(self.amountForSnipe) == True:
                     spinner.stop()
                     break
             except Exception as e:
+                #self.print_custom(str(e), color="red")
                 if "UPDATE" in str(e):
-                    print(e)
+                    self.print_custom(e, color="red")
                     raise SystemExit
                 continue
-        print(style().GREEN+"[DONE] Swapping is Enabeld!" + style().RESET)
+        self.print_custom("[DONE] Swapping is Enabeld!", color="green")
 
     def awaitMangePosition(self):
         highestLastPrice = 0
@@ -272,131 +329,125 @@ class SniperBot():
             self.takeProfitOutput = self.calcProfit()
         if self.sl != 0:
             self.stoploss = self.calcloss()
-        TokenBalance = round(self.TXN.get_token_balance(), 5)
+        TokenBalance = float(self.TXN.w3U.get_human_amount(self.TXN.w3U.from_wei(
+            self.TXN.IERC20.get_token_balance(self.TXN.SwapContract.user_address),
+            self.TXN.IERC20.get_token_decimals()
+        )))
+
         while True:
             try:
                 sleep(0.9)
                 LastPrice = float(
-                    self.TXN.getOutputTokenToBNB(args.sellpercent)[0] / (10**18))
+                    self.getOutputTokenToBNB(self.sellpercent) / (10**18))
                 if self.tsl != 0:
                     if LastPrice > highestLastPrice:
                         highestLastPrice = LastPrice
                         self.TrailingStopLoss = self.calcNewTrailingStop(
                             LastPrice)
                     if LastPrice < self.TrailingStopLoss:
-                        print(style().GREEN +
-                              "[TRAILING STOP LOSS] Triggert!" + style().RESET)
+                        self.print_custom(
+                              "[TRAILING STOP LOSS] Triggert!",  color="green")
                         self.awaitSell()
                         break
+
 
                 if self.takeProfitOutput != 0:
                     if LastPrice >= self.takeProfitOutput:
-                        print()
-                        print(style().GREEN +
-                              "[TAKE PROFIT] Triggert!" + style().RESET)
+                        self.print_custom(
+                              "[TAKE PROFIT] Triggert!", color="green")
                         self.awaitSell()
                         break
+
 
                 if self.stoploss != 0:
                     if LastPrice <= self.stoploss:
-                        print()
-                        print(style().GREEN +
-                              "[STOP LOSS] Triggert!" + style().RESET)
+                        self.print_custom()
+                        self.print_custom(
+                              "[STOP LOSS] Triggert!", color="green")
                         self.awaitSell()
                         break
 
-                msg = str("Token Balance: " + str("{0:.5f}".format(
-                    TokenBalance)) + " | CurrentOutput: "+str("{0:.7f}".format(LastPrice))+"BNB")
+                msg = str("Token Balance: " + str(TokenBalance) + " | CurrentOutput: "+str(self.TXN.w3U.get_human_amount(LastPrice))+" BNB")
                 if self.stoploss != 0:
-                    msg = msg + " | Stop loss below: " + \
-                        str("{0:.7f}".format(self.stoploss)) + "BNB"
+                    msg = msg + " | Stop loss below: "+str(self.TXN.w3U.get_human_amount(self.stoploss)) + " BNB"
                 if self.takeProfitOutput != 0:
-                    msg = msg + "| Take Profit Over: " + \
-                        str("{0:.7f}".format(self.takeProfitOutput)) + "BNB"
+                    msg = msg + "| Take Profit Over: "+str(self.TXN.w3U.get_human_amount(self.takeProfitOutput)) + " BNB"
                 if self.tsl != 0:
-                    msg = msg + " | Trailing Stop loss below: " + \
-                        str("{0:.7f}".format(self.TrailingStopLoss)) + "BNB"
-                print(msg, end="\r")
+                    msg = msg + " | Trailing Stop loss below: "+str(self.TXN.w3U.get_human_amount(self.TrailingStopLoss)) + " BNB"
+                self.print_custom(text=msg, end="\r", color="yellow")
 
             except Exception as e:
-                if KeyboardInterrupt:
-                    raise SystemExit
-                print(
-                    style().RED + f"[ERROR] {str(e)},\n\nSleeping now 30sec and Reinit RPC!" + style().RESET)
-                sleep(30)
-                self.TXN = TXN(self.token, self.amountForSnipe)
+                self.print_custom(f"[ERROR] {str(e)},\n\nSleeping now 20sec and Reinit RPC!", color="red")
+                sleep(20)
+                self.TXN = SwapOracle(self.token)
                 continue
 
-        print(style().GREEN +
-              "[DONE] Position Manager Finished!" + style().RESET)
+        self.print_custom(
+              "[DONE] Position Manager Finished!", color="green")
+
 
     def StartUP(self):
-        self.TXN = TXN(self.token, self.amountForSnipe)
-
-        if args.sellonly:
-            print("Start SellOnly, for selling tokens!")
+        if self.sellonly:
+            self.print_custom("Start SellOnly, for selling tokens!", color="yellow")
             self.awaitApprove()
-            if args.SwapEnabledCheck == True:
+            if self.SwapEnabledCheck == True:
                 self.awaitEnabledBuy()
-            if args.sellpercent > 0 and args.sellpercent < 100:
-                print(self.TXN.sell_tokens(args.sellpercent)[1])
+            if self.sellpercent > 0 and self.sellpercent < 100:
+                pass
             else:
-                percent = int(input("Enter Percent you want to sell: "))
-                print(self.TXN.sell_tokens(percent)[1])
+                self.sellpercent = int(input("Enter Percent you want to sell: "))
+            tokenBalance = self.TXN.w3U.from_wei(self.TXN.IERC20.get_token_balance(self.TXN.SwapContract.user_address), self.TXN.IERC20.get_token_decimals())
+            AmountForInput = (tokenBalance / 100) * self.sellpercent
+            self.print_custom("Sell TX Hash: " + self.TXN.SwapContract.SwapTokentoETH(AmountForInput)[1], color="green")
             raise SystemExit
 
-        if args.buyonly:
-            print(
-                f"Start BuyOnly, buy now with {self.amountForSnipe}BNB tokens!")
-            print(self.TXN.buy_token(args.retry)[1])
+        if self.buyonly:
+            self.print_custom(
+                f"Start BuyOnly, buy now with {self.amountForSnipe}BNB tokens!", color="yellow")
+            self.print_custom("Buy TX Hash: " + self.TXN.SwapContract.SwapETHtoToken(self.amountForSnipe, self.retry)[1] , color="green")
             raise SystemExit
 
-        if args.nobuy != True:
+        if self.nobuy != True:
             self.awaitLiquidity()
-            if args.SwapEnabledCheck == True:
+            if self.SwapEnabledCheck == True:
                 self.awaitEnabledBuy()
 
-        if args.checkcontract:
+        if self.checkcontract:
             self.CheckVerifyCode()
 
         if self.hp == True:
             try:
-                honeyTax = self.TXN.checkToken()
-                print(style().YELLOW + "Checking Token..." + style().RESET)
+                honeyTax = self.TXN.SwapContract.getTokenInfos()
+                self.print_custom("Checking Token...", color="yellow")
 
                 if honeyTax[2] == True:
-                    print(style.RED + "Token is Honeypot, exiting")
+                    self.print_custom("Token is Honeypot, exiting", color="red")
                     raise SystemExit
                 elif honeyTax[2] == False:
-                    print(style().GREEN +
-                          "[DONE] Token is NOT a Honeypot!" + style().RESET)
+                    self.print_custom(
+                          "[DONE] Token is NOT a Honeypot!", color="green")
             except Exception as e:
                 self.i = input(
-                    style().RED+"Error in HoneyPot Check, HIGH Risk to enter a Honeypot!\n" + style().GREEN + " Exiting? y/n \n > " + style().RESET)
+                    "Error in HoneyPot Check, HIGH Risk to enter a Honeypot!\n" +" Exiting? y/n \n > ")
                 if self.i.lower() == "y":
                     raise SystemExit
 
-        if args.checkMaxTax == True:
+        if self.checkMaxTax == True:
             try:
-                honeyTax = self.TXN.checkToken()
-                print(style.GREEN + "[TOKENTAX] Current Token BuyTax:",
-                      honeyTax[0], "%" + style.RESET)
-                print(style.GREEN + "[TOKENTAX] Current Token SellTax:",
-                      honeyTax[1], "%" + style.RESET)
-                if honeyTax[1] > self.settings["MaxSellTax"]:
-                    print(style().RED+"Token SellTax exceeds Settings.json, exiting!")
+                honeyTax = self.TXN.SwapContract.getTokenInfos()
+                self.print_custom("[TOKENTAX] Current Token BuyTax: "+str(honeyTax[0])+" %" , color="yellow")
+                self.print_custom("[TOKENTAX] Current Token SellTax: "+str(honeyTax[1])+" %" , color="yellow")
+                if honeyTax[1] > self.TXN.settings.settings["MaxSellTax"]:
+                    self.print_custom("Token SellTax exceeds Settings.json, exiting!", color="red")
                     raise SystemExit
-                if honeyTax[0] > self.settings["MaxBuyTax"]:
-                    print(style().RED+"Token BuyTax exceeds Settings.json, exiting!")
+                if honeyTax[0] > self.TXN.settings.settings["MaxBuyTax"]:
+                    self.print_custom("Token BuyTax exceeds Settings.json, exiting!", color="red")
                     raise SystemExit
             except Exception as e:
-                if self.i:
-                    if self.i.lower() == "y":
-                        raise SystemExit
-                else:
-                    self.i = input(
-                        style().RED+"Error in Token Tax Check, HIGH Risk to enter a Honeypot!\n" + style().GREEN + "Exiting? y/n \n > " + style().RESET)
-                    if self.i.lower() == "y":
+                print(e)
+                self.i = input(
+                        "Error in Token Tax Check, HIGH Risk to enter a Honeypot!\n"+"Exiting? y/n \n > " )
+                if self.i.lower() == "y":
                         raise SystemExit
 
         if self.wb != 0:
@@ -406,18 +457,37 @@ class SniperBot():
             if self.fetchLiquidity() != False:
                 pass
 
-        if args.nobuy != True:
+        if self.nobuy != True:
             self.awaitBuy()
 
         # Give the RPC/WS some time to Index your address nonce, make it higher if " ValueError: {'code': -32000, 'message': 'nonce too low'} "
 
         if self.tsl != 0 or self.tp != 0 or self.sl != 0:
-            sleep(7)
+            sleep(3)
             self.awaitApprove()
             self.awaitMangePosition()
 
-        print(style().GREEN +
-              "[DONE] TradingTigers Sniper Bot finish!" + style().RESET)
+        self.print_custom("[DONE] Trading-Tigers.com Sniper Bot Finish Work.")
 
 
-SniperBot().StartUP()
+
+
+sniper_bot = SniperBot(
+        args.token, 
+        args.amount, 
+        args.txamount, 
+        args.sellpercent, 
+        args.honeypot, 
+        args.nobuy, 
+        args.takeprofit, 
+        args.stoploss, 
+        args.trailingstoploss, 
+        args.awaitBlocks, 
+        args.checkMaxTax, 
+        args.checkcontract, 
+        args.sellonly, 
+        args.buyonly,
+        args.checkliquidity,
+        args.retry, 
+        args.SwapEnabledCheck
+).StartUP()
