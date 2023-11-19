@@ -1,5 +1,5 @@
 # 🚀 BSC Pancakeswap, BiSwap & Mdex Sniper Bot 🚀
-[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://your-release-link) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://your-build-status-link) [![Discord](https://img.shields.io/badge/Join-Discord-blue)](https://discord.gg/cfpY5eUDU6) [![Telegram](https://img.shields.io/badge/Join-Telegram-blue)](https://t.me/tradingtigerschat1) 
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot/releases/tag/V4) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]() [![Discord](https://img.shields.io/badge/Join-Discord-blue)](https://discord.gg/cfpY5eUDU6) [![Telegram](https://img.shields.io/badge/Join-Telegram-blue)](https://t.me/tradingtigerschat1) 
 
 <div><a href="https://trading-tigers.com" > <img src="https://trading-tigers.com/logos/TradingTigers.png" height="100"></a></div>
 
