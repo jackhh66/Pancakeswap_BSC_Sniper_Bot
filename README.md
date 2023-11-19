@@ -3,7 +3,8 @@
 
 <div><a href="https://trading-tigers.com" > <img src="https://trading-tigers.com/logos/TradingTigers.png" height="100"></a></div>
 
-### Web3 Pancakeswap, BiSwap & Mdex Sniper && Take Profit/StopLose bot written in python3, Please note the license conditions!
+### Web3 Pancakeswap, BiSwap & Mdex Sniper && Take Profit/StopLose bot written in python3, for V2 and V3 from Uniswap.
+Please note the license conditions!
 <br />
 
 ## Install Video
