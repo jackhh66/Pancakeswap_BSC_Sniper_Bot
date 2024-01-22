@@ -7,9 +7,6 @@
 Please note the license conditions!
 <br />
 
-## Install Video
-[![Installing the Trading Tiger BSC Sniper Bot](http://img.youtube.com/vi/3aQXiyZKumM/0.jpg)](http://www.youtube.com/watch?v=3aQXiyZKumM "Installing the Trading Tiger BSC Sniper Bot")
-
 # Changelog: Version 3 to Version 4
 
 **New Feature: Pancakeswap V3 Support**
