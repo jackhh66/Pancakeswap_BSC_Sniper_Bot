@@ -1,5 +1,5 @@
 # 🚀 BSC Pancakeswap, BiSwap & Mdex Sniper Bot 🚀
-[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot/releases/tag/V4) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]() [![Discord](https://img.shields.io/badge/Join-Discord-blue)](https://discord.gg/cfpY5eUDU6) [![Telegram](https://img.shields.io/badge/Join-Telegram-blue)](https://t.me/tradingtigerschat1) 
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot/releases/tag/V4) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
 
 <div><a href="https://trading-tigers.com" > <img src="https://trading-tigers.com/logos/TradingTigers.png" height="100"></a></div>
 
@@ -18,9 +18,6 @@ Please note the license conditions!
 **Improvements:**
 - Various performance enhancements and bug fixes to ensure smoother execution.
 - Updated algorithms for better analysis of multiple exchange routes.
-
-**Community:**
-- Our community channels on [Discord](https://discord.gg/cfpY5eUDU6) and [Telegram](https://t.me/tradingtigerschat1) are available for assistance and discussions related to the latest version.
 
 ## The first Binance Smart Chain sniper bot with Honeypot checker!  
 <div><a href="" > <img src="https://trading-tigers.com/logos/preview001.png" height="300"></a></div>
@@ -61,12 +58,3 @@ python Sniper.py -t 0x34faa80fec0233e045ed4737cc152a71e490e2e3 --sellonly
 python Sniper.py -t 0x34faa80fec0233e045ed4737cc152a71e490e2e3 -a 0.001 --buyonly
 python Sniper.py -t 0x34faa80fec0233e045ed4737cc152a71e490e2e3 -tsl 10 -tp 10 -sl 10 -nb
 ```
-
-# SUPPORT & HELP
-Visit our community for help or questions, on Discord or Github you can open tickets/issues!
-<div>
-<a href="https://discord.gg/cfpY5eUDU6" > <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/6257d377b13ff484638adb92_svg7.svg" height="80"></a>
-
-<a href="https://t.me/tradingtigerschat1" > <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Telegram_X_2019_Logo.svg" height="80"></a>
-</div>
-<br />
