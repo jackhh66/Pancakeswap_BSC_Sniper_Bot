@@ -34,16 +34,11 @@ There's a 0.7% tax on the swap amount, but if you hold 1k TIGS, your tax rate dr
 ## Enjoy a Seamless Swapping Experience 
 With this tool, you can effortlessly swap your assets for BNB and take advantage of the many benefits it offers. So why wait? Start maximizing your returns today!  
 
-## Support Us and the Community with [TIGS Token](https://bscscan.com/token/0x34faa80fec0233e045ed4737cc152a71e490e2e3) 
-By purchasing TIGS tokens, you not only support our platform, but you also contribute to the growth and development of our community. Invest in our future and help us continue to bring value to you and other members.
-<br />
 <br />
 <br />
 
 # Documentations
 - ## [Installation](https://docs.trading-tigers.com/sniper-bot/installation)
-- ## [Settings](https://docs.trading-tigers.com/sniper-bot/settings)
-- ## [Arguments & Functions](https://docs.trading-tigers.com/sniper-bot/arguments-and-functions)  
 <br />
   
 
