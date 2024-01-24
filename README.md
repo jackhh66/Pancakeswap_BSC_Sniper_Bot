@@ -40,8 +40,8 @@ You Need to install Visual Studio BuildTools & Python3
 
 Clone Repo:  
 ```shell
-git clone https://github.com/Trading-Tiger/TraderJoe_BSC_Sniper_Bot
-cd TraderJoe_BSC_Sniper_Bot
+git clone https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot
+cd Pancakeswap_BSC_Sniper_Bot
 ```
 
 Install Requirements:  
