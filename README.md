@@ -1,7 +1,7 @@
 # 🚀 BSC Pancakeswap, BiSwap & Mdex Sniper Bot 🚀
-[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot/releases/tag/V4) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Release](https://img.shields.io/badge/Release-V4-brightgreen)](https://github.com/Sevens-W3-Lab/Pancakeswap_BSC_Sniper_Bot/releases/tag/V4) [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
 
-<div><a href="https://trading-tigers.com" > <img src="https://trading-tigers.com/logos/TradingTigers.png" height="100"></a></div>
+
 
 ### Web3 Pancakeswap, BiSwap & Mdex Sniper && Take Profit/StopLose bot written in python3, for V2 and V3 from Uniswap.
 Please note the license conditions!
@@ -17,8 +17,7 @@ Please note the license conditions!
 - Updated algorithms for better analysis of multiple exchange routes.
 
 ## The first Binance Smart Chain sniper bot with Honeypot checker!  
-<div><a href="" > <img src="https://trading-tigers.com/logos/preview001.png" height="300"></a></div>
-<div><a href="https://github.com/Trading-Tiger/Pancakeswap_BSC_Sniper_Bot/releases" > <img src="https://trading-tigers.com/logos/SniperV4.png" height="500"></a></div>
+<div><a href="https://github.com/Sevens-W3-Lab/Pancakeswap_BSC_Sniper_Bot/releases" > <img src="https://trading-tigers.com/logos/SniperV4.png" height="500"></a></div>
 <br />
 
 ## Maximize Your Profits with Our Token Launch Solution
