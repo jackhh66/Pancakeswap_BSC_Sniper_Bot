@@ -16,9 +16,39 @@ Please note the license conditions!
 - Various performance enhancements and bug fixes to ensure smoother execution.
 - Updated algorithms for better analysis of multiple exchange routes.
 
+
+
 ## The first Binance Smart Chain sniper bot with Honeypot checker!  
-<div><a href="https://github.com/Sevens-W3-Lab/Pancakeswap_BSC_Sniper_Bot/releases" > <img src="https://trading-tigers.com/logos/SniperV4.png" height="500"></a></div>
-<br />
+<a href="https://github.com/Sevens-W3-Lab/Pancakeswap_BSC_Sniper_Bot/releases" >
+
+  
+### Setup your Address and secret key in Settings.json and Run main-GUI.exe.
+
+# Install
+First of all, you need install Python3+
+Run on Android you need Install [Termux](https://termux.com/) only from F-Droid works atm. 
+```shell
+termux: 
+$ pkg install python git cmake 
+Debian/Ubuntu: 
+$ sudo apt install python3 git cmake gcc
+Windows:
+You Need to install Visual Studio BuildTools & Python3
+```
+
+### Setup your Address and secret key in Settings.json.
+
+Clone Repo:  
+```shell
+git clone https://github.com/Trading-Tiger/TraderJoe_BSC_Sniper_Bot
+cd TraderJoe_BSC_Sniper_Bot
+```
+
+Install Requirements:  
+```python
+python -m pip install -r requirements.txt
+```  
+
 
 ## Maximize Your Profits with Our Token Launch Solution
 Our sniper bot is specifically designed to help you quickly purchase tokens during high-demand events such as token launches and swap enablement. With its lightning-fast speed, the bot is capable of executing trades in a matter of seconds, giving you a competitive edge in securing a significant portion of the new tokens.
