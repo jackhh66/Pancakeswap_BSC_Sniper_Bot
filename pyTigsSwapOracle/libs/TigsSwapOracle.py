@@ -2,8 +2,6 @@ from pyTigsSwapOracle.imports import *
 
 
 class TigsSwapOracle:
-    """
-    """
     def __init__(self, settings, w3, IERC20, w3U):
         self.settings, self.user_address, self.priv_key, self.w3, self.IERC20, self.w3U = settings, settings.settings["metamask_address"], settings.settings["metamask_private_key"], w3, IERC20, w3U
         self.constants = constant(self.w3.eth.chain_id)
@@ -51,8 +49,8 @@ class TigsSwapOracle:
     
     def getAmountsOutTokenToToken(self, tokenIn, tokenOut, inputAmount:int):
         return self.TigsSwapOracle.functions.getAmountsOut(
-            Web3.toChecksumAddress(tokenIn),
-            Web3.toChecksumAddress(tokenOut),
+            Web3.to_checksum_address(tokenIn),
+            Web3.to_checksum_address(tokenOut),
             inputAmount
         ).call()
     
@@ -67,7 +65,7 @@ class TigsSwapOracle:
     def getSwapProtocollVersionTokenETH(self):
         return self.TigsSwapOracle.functions.checkVersion(self.IERC20.get_token_address(), self.constants.WETH).call()
     def getSwapProtocollVersionTokenToken(self, TokenIn, TokenOut):
-        return self.TigsSwapOracle.functions.checkVersion(Web3.toChecksumAddress(TokenIn), Web3.toChecksumAddress(TokenOut)).call()
+        return self.TigsSwapOracle.functions.checkVersion(Web3.to_checksum_address(TokenIn), Web3.to_checksum_address(TokenOut)).call()
 
     def getTokenInfos(self):
         function_signature = self.TigsSwapOracle.encodeABI(fn_name="getTokenInfos", args=[self.IERC20.get_token_address()])
@@ -93,7 +91,7 @@ class TigsSwapOracle:
         return buy_tax, sell_tax, honeypot
     
     def getWalletTokenDATA(self, tokenList):
-        tokenList = [Web3.toChecksumAddress(address) for address in tokenList]
+        tokenList = [Web3.to_checksum_address(address) for address in tokenList]
         tokenBalances ,tokenDecimals ,tokenPrice ,tokensVersion ,tokenAddress = self.TigsSwapOracle.functions.getWalletTokenDATA(self.user_address, tokenList).call()
         return tokenBalances ,tokenDecimals ,tokenPrice ,tokensVersion ,tokenAddress
     
@@ -105,8 +103,8 @@ class TigsSwapOracle:
         
     def getTokentoTokenPathV3(self, tokenIn, tokenOut):
         return self.TigsSwapOracle.functions.getSwapPathV3(
-                Web3.toChecksumAddress(tokenIn),
-                Web3.toChecksumAddress(tokenOut)
+                Web3.to_checksum_address(tokenIn),
+                Web3.to_checksum_address(tokenOut)
             ).call()
     
     
@@ -118,8 +116,8 @@ class TigsSwapOracle:
         
     def getTokentoTokenPathV2(self, tokenIn, tokenOut):
         return self.TigsSwapOracle.functions.getSwapPathV2(
-                Web3.toChecksumAddress(tokenIn),
-                Web3.toChecksumAddress(tokenOut)
+                Web3.to_checksum_address(tokenIn),
+                Web3.to_checksum_address(tokenOut)
             ).call()
     
     def getBNBBalance(self):
@@ -129,17 +127,17 @@ class TigsSwapOracle:
         try:
             amount_wei = self.w3U.to_wei(amount_BNB, 18)
             transaction = {
-                'to': self.w3.toChecksumAddress(recipient_address),
+                'to': self.w3.to_checksum_address(recipient_address),
                 'value': amount_wei,
-                'gasPrice': self.w3.eth.gasPrice + self.w3.to_wei(int(self.settings.settings["GWEI_OFFSET"]), 'gwei'),
-                'nonce': self.w3.eth.getTransactionCount(self.user_address),
+                'gasPrice': self.w3.eth.gas_price + self.w3.to_wei(int(self.settings.settings["GWEI_OFFSET"]), 'gwei'),
+                'nonce': self.w3.eth.get_transaction_count(self.user_address),
                 'gas': 210000
             }
-            transaction['gas'], maxGasETH, notExtendMax = self.w3U.estimateGas(transaction)
-            signed_txn = self.w3.eth.account.signTransaction(transaction, self.priv_key)
+            transaction['gas'], maxGasETH, notExtendMax = self.w3U.estimate_gas(transaction)
+            signed_txn = self.w3.eth.account.sign_transaction(transaction, self.priv_key)
             if notExtendMax:
-                txn_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-                txn_receipt = self.w3.eth.waitForTransactionReceipt(txn_hash, timeout=int(self.settings.settings["timeout"]))
+                txn_hash = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+                txn_receipt = self.w3.eth.wait_for_transactionReceipt(txn_hash, timeout=int(self.settings.settings["timeout"]))
             else:
                 return False, maxGasETH, txn_hash.hex(), False
             if txn_receipt["status"] == 1:
@@ -174,8 +172,8 @@ class TigsSwapOracle:
             amountOutMinimum
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]) ,"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]) ,"gwei"),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': int(inputAmount)}
         )
         return True
@@ -191,10 +189,12 @@ class TigsSwapOracle:
             poolFees,
             minOutput
         ).build_transaction(
-            {'from': self.user_address,
-             'gasPrice': int(self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]), "gwei")),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
-             'value': int(inputAmount)}
+            {
+                'from': self.user_address,
+                'gasPrice': int(self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]), "gwei")),
+                'nonce': self.w3.eth.get_transaction_count(self.user_address),
+                'value': int(inputAmount)
+             }
         )
         return True
     
@@ -223,18 +223,18 @@ class TigsSwapOracle:
             amountOutMinimum
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]) ,"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]) ,"gwei"),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': int(inputAmount)}
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]
@@ -255,18 +255,18 @@ class TigsSwapOracle:
             minOutput
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': int(self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]), "gwei")),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': int(self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]), "gwei")),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': int(inputAmount)}
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]
@@ -304,19 +304,19 @@ class TigsSwapOracle:
             amountOutMinimum
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': 0
              }
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]
@@ -337,18 +337,18 @@ class TigsSwapOracle:
             amountOutMinimum
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': 0}
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]
@@ -369,18 +369,18 @@ class TigsSwapOracle:
             amountOutMinimum
         ).build_transaction(
             {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
+             'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
+             'nonce': self.w3.eth.get_transaction_count(self.user_address),
              'value': 0}
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]
@@ -398,19 +398,21 @@ class TigsSwapOracle:
             inputAmount,
             amountOutMinimum
         ).build_transaction(
-            {'from': self.user_address,
-             'gasPrice': self.w3.eth.gasPrice + Web3.toWei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
-             'nonce': self.w3.eth.getTransactionCount(self.user_address),
-             'value': 0}
+            {
+                'from': self.user_address,
+                'gasPrice': self.w3.eth.gas_price + Web3.to_wei(int(self.settings.settings["GWEI_OFFSET"]),"gwei"),
+                'nonce': self.w3.eth.get_transaction_count(self.user_address),
+                'value': 0
+             }
         )
         gas = self.w3U.estimateGas(txn)
         txn.update({'gas': gas[0]})
-        signed_txn = self.w3.eth.account.signTransaction(
+        signed_txn = self.w3.eth.account.sign_transaction(
             txn,
             self.priv_key
         )
-        txn = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
-        txn_receipt = self.w3.eth.waitForTransactionReceipt(
+        txn = self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = self.w3.eth.wait_for_transaction_receipt(
             txn, timeout=self.settings.settings["timeout"])
         if txn_receipt["status"] == 1:
             return True, txn.hex(), gas[1]

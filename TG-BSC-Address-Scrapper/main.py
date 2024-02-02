@@ -42,7 +42,7 @@ def start(config):
         msg_splitted = parsed_response.split()
         for word in msg_splitted:
             if word[:2] == "0x":
-                if Web3.isAddress(word):     
+                if Web3.is_address(word):     
                     Thread(target=Threader,daemon=True, args=(word,)).start()
     client.run_until_disconnected()
 

@@ -9,9 +9,9 @@ class W3Utils:
 
 
     def estimateGas(self, txn):
-        gas = self.w3.eth.estimateGas(txn)
+        gas = self.w3.eth.estimate_gas(txn)
         gas = gas + (gas / 10)  # Adding 1/10 from gas to gas!
-        maxGasETH = Web3.fromWei(gas * (self.w3.eth.gasPrice + (int(self.settings.settings['GWEI_OFFSET']) * (10**9))), "ether")
+        maxGasETH = Web3.from_wei(gas * (self.w3.eth.gas_price + (int(self.settings.settings['GWEI_OFFSET']) * (10**9))), "ether")
         gas_msg = ("Transaction cost " + str(self.custom_round(maxGasETH)) + " BNB")
         if maxGasETH > float(self.settings.settings["MaxTXFeeBNB"]):
             return gas, "Tx cost exceeds your settings, exiting!", False

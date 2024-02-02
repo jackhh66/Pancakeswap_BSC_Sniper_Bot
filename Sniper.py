@@ -471,8 +471,8 @@ class SniperBot():
 
 
 
-
-sniper_bot = SniperBot(
+if __name__ == "__main__":
+    sniper_bot = SniperBot(
         args.token, 
         args.amount, 
         args.txamount, 
